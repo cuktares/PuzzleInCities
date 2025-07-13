@@ -648,7 +648,11 @@ GameObject:
   - component: {fileID: 4416926081852918493}
   - component: {fileID: 4287284973372174947}
   - component: {fileID: 6812353796520755213}
+<<<<<<< HEAD
   - component: {fileID: 6104948535430448977}
+=======
+  - component: {fileID: 7474874068422406311}
+>>>>>>> f7288f5f09268e6f8f32e1ced9035048eb9933ef
   m_Layer: 8
   m_Name: PlayerArmature
   m_TagString: Player
@@ -672,7 +676,11 @@ Transform:
   - {fileID: 8338988566280778637}
   - {fileID: 687739186260221254}
   - {fileID: 3682733019290825120}
+<<<<<<< HEAD
   - {fileID: 7461616549909649350}
+=======
+  - {fileID: 4688043008013536601}
+>>>>>>> f7288f5f09268e6f8f32e1ced9035048eb9933ef
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!95 &6982812146204527121
@@ -888,7 +896,7 @@ MonoBehaviour:
   SprintSpeed: 10
   RotationSmoothTime: 0.12
   SpeedChangeRate: 10
-  JumpHeight: 3
+  JumpHeight: 2
   Gravity: -20
   JumpTimeout: 0.5
   FallTimeout: 0.15
@@ -914,7 +922,11 @@ MonoBehaviour:
   CloneCreateSound: {fileID: 8300000, guid: ee7feb159324b0b4cb179529bae6b65c, type: 3}
   RewindSound: {fileID: 8300000, guid: 3fc820ef5cdb74742b4704c9d4442d64, type: 3}
   CloneSoundVolume: 1
+<<<<<<< HEAD
 --- !u!114 &6104948535430448977
+=======
+--- !u!114 &7474874068422406311
+>>>>>>> f7288f5f09268e6f8f32e1ced9035048eb9933ef
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2226,7 +2238,11 @@ Transform:
   m_Children: []
   m_Father: {fileID: 444075738338381081}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+<<<<<<< HEAD
 --- !u!1001 &1694937982924275757
+=======
+--- !u!1001 &3532541617601256114
+>>>>>>> f7288f5f09268e6f8f32e1ced9035048eb9933ef
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -2283,8 +2299,15 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 64b182395c0b6744a920c74bce3ece13, type: 3}
+<<<<<<< HEAD
 --- !u!4 &7461616549909649350 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8073086772555192299, guid: 64b182395c0b6744a920c74bce3ece13, type: 3}
   m_PrefabInstance: {fileID: 1694937982924275757}
+=======
+--- !u!4 &4688043008013536601 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 8073086772555192299, guid: 64b182395c0b6744a920c74bce3ece13, type: 3}
+  m_PrefabInstance: {fileID: 3532541617601256114}
+>>>>>>> f7288f5f09268e6f8f32e1ced9035048eb9933ef
   m_PrefabAsset: {fileID: 0}
