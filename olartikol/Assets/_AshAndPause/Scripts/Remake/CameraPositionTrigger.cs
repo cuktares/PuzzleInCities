@@ -7,8 +7,8 @@ public class CameraPositionTrigger : MonoBehaviour
     public float triggerDelay = 0.2f;
     
     [Header("Kamera Ayarları")]
-    [Tooltip("Kamera X pozisyonunun yönü: Sol için negatif, sağ için pozitif değer girin")]
-    public float cameraXOffset = 5f;
+    [Tooltip("Kamera pozisyon offset'i: X (sol-sağ), Y (aşağı-yukarı), Z (ileri-geri)")]
+    public Vector3 cameraOffset = new Vector3(5f, 0f, 0f);
     [Tooltip("Kamera geçiş hızını belirler (daha düşük değer = daha hızlı geçiş)")]
     public float transitionSpeed = 1f;
     
@@ -93,9 +93,13 @@ public class CameraPositionTrigger : MonoBehaviour
             {
                 // Varsayılan pozisyondaysa offset değerine geç
                 Vector3 currentOffset = cameraController.defaultOffset;
-                Vector3 newOffset = new Vector3(cameraXOffset, currentOffset.y, currentOffset.z);
+                Vector3 newOffset = new Vector3(
+                    cameraOffset.x, 
+                    cameraOffset.y, 
+                    cameraOffset.z
+                );
                 
-                if (isDebugMode) Debug.Log($"{gameObject.name}: Alternatif pozisyona geçiliyor. X offset: {cameraXOffset}");
+                if (isDebugMode) Debug.Log($"{gameObject.name}: Alternatif pozisyona geçiliyor. Offset: {cameraOffset}");
                 
                 cameraController.UpdateCameraPosition(newOffset, transitionSpeed);
                 isAlternatePosition = true;
@@ -165,7 +169,11 @@ public class CameraPositionTrigger : MonoBehaviour
         {
             Vector3 targetPos = cameraController.defaultTarget.position;
             Vector3 currentOffset = cameraController.defaultOffset;
-            Vector3 newOffset = new Vector3(cameraXOffset, currentOffset.y, currentOffset.z);
+            Vector3 newOffset = new Vector3(
+                cameraOffset.x, 
+                cameraOffset.y, 
+                cameraOffset.z
+            );
             
             // Varsayılan pozisyon
             Gizmos.color = isAlternatePosition ? Color.gray : Color.green;

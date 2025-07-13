@@ -44,6 +44,10 @@ namespace StarterAssets
         public float pressSpeed = 5f;
         public bool requiresPlayer = false; // Player gerekli mi, yoksa Pushable yeterli mi?
         
+        [Header("Renk Filtresi")]
+        [Tooltip("Bu buton hangi renkteki kutularla etkileşime girebilir (boş bırakılırsa tüm renkler kabul edilir)")]
+        public List<BoxColor> acceptedBoxColors = new List<BoxColor>();
+        
         [Header("Ses Ayarları")]
         public AudioClip pressSound;
         public AudioClip releaseSound;
@@ -99,7 +103,34 @@ namespace StarterAssets
             }
             else
             {
-                canPress = other.CompareTag("Player") || other.CompareTag("Pushable");
+                if (other.CompareTag("Player"))
+                {
+                    canPress = true;
+                }
+                else if (other.CompareTag("Pushable"))
+                {
+                    // Pushable obje için renk kontrolü
+                    PushableObject pushableObj = other.GetComponent<PushableObject>();
+                    if (pushableObj != null)
+                    {
+                        // Eğer acceptedBoxColors listesi boşsa tüm renkler kabul edilir
+                        if (acceptedBoxColors.Count == 0)
+                        {
+                            canPress = true;
+                        }
+                        else
+                        {
+                            // Kutunun rengi listede var mı kontrol et
+                            BoxColor objColor = pushableObj.GetBoxColor();
+                            canPress = acceptedBoxColors.Contains(objColor);
+                            
+                            if (!canPress)
+                            {
+                                Debug.Log($"[{gameObject.name}] {objColor} rengindeki kutu bu butonla etkileşime giremez. Kabul edilen renkler: {string.Join(", ", acceptedBoxColors)}");
+                            }
+                        }
+                    }
+                }
             }
             
             if (canPress)
@@ -118,6 +149,8 @@ namespace StarterAssets
                     {
                         audioSource.PlayOneShot(pressSound, soundVolume);
                     }
+                    
+                    Debug.Log($"[{gameObject.name}] Buton aktifleştirildi!");
                 }
             }
         }
@@ -134,7 +167,18 @@ namespace StarterAssets
             }
             else
             {
-                canRelease = other.CompareTag("Player") || other.CompareTag("Pushable");
+                if (other.CompareTag("Player"))
+                {
+                    canRelease = true;
+                }
+                else if (other.CompareTag("Pushable"))
+                {
+                    // Pushable obje için renk kontrolü (sadece butonun üzerindeki objeler için)
+                    if (objectsOnButton.Contains(other.gameObject))
+                    {
+                        canRelease = true; // Eğer obje butonun üzerindeyse, rengi ne olursa olsun çıkabilir
+                    }
+                }
             }
             
             Debug.Log($"[{gameObject.name}] canRelease: {canRelease}, objectsOnButton.Contains: {objectsOnButton.Contains(other.gameObject)}");
@@ -147,7 +191,7 @@ namespace StarterAssets
                 // Tüm objeler butondan çıktığında bırak
                 if (isPressed && objectsOnButton.Count == 0)
                 {
-                    Debug.Log($"[{gameObject.name}] ReleaseButtonWithDelay başlatılıyor");
+                    Debug.Log($"[{gameObject.name}] Buton deaktifleştiriliyor, ReleaseButtonWithDelay başlatılıyor");
                     lastTriggerTime = Time.time;
                     StartCoroutine(ReleaseButtonWithDelay());
                 }
@@ -365,6 +409,41 @@ namespace StarterAssets
             action.targetObject.transform.rotation = targetRot;
         }
 
+        // Köprü sistemi için butonun durumunu kontrol etmek
+        public bool IsPressed()
+        {
+            return isPressed;
+        }
+        
+        // Debug için butonun üzerindeki obje sayısını al
+        public int GetObjectCount()
+        {
+            return objectsOnButton.Count;
+        }
+        
+        // Kabul edilen renkleri almak için
+        public List<BoxColor> GetAcceptedColors()
+        {
+            return new List<BoxColor>(acceptedBoxColors);
+        }
+        
+        // BoxColor'dan Unity Color'a dönüştürme helper'ı
+        private Color GetColorFromBoxColor(BoxColor boxColor)
+        {
+            switch (boxColor)
+            {
+                case BoxColor.Red: return Color.red;
+                case BoxColor.Yellow: return Color.yellow;
+                case BoxColor.Blue: return Color.blue;
+                case BoxColor.Green: return Color.green;
+                case BoxColor.Purple: return Color.magenta;
+                case BoxColor.Orange: return new Color(1f, 0.5f, 0f);
+                case BoxColor.White: return Color.white;
+                case BoxColor.Black: return Color.black;
+                default: return Color.gray;
+            }
+        }
+
         private void OnDrawGizmosSelected()
         {
             // Button press görselleştirmesi
@@ -395,6 +474,21 @@ namespace StarterAssets
                             Gizmos.DrawWireSphere(moveTarget, 0.3f);
                             break;
                     }
+                }
+            }
+            
+            // Kabul edilen renkleri göster
+            if (acceptedBoxColors.Count > 0)
+            {
+                Gizmos.color = Color.magenta;
+                Gizmos.DrawWireSphere(transform.position + Vector3.up, 0.3f);
+                
+                // Her renk için küçük işaret
+                for (int i = 0; i < acceptedBoxColors.Count; i++)
+                {
+                    Vector3 colorPos = transform.position + Vector3.up + Vector3.right * (i * 0.3f - (acceptedBoxColors.Count - 1) * 0.15f);
+                    Gizmos.color = GetColorFromBoxColor(acceptedBoxColors[i]);
+                    Gizmos.DrawSphere(colorPos, 0.1f);
                 }
             }
         }

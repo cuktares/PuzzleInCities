@@ -1,8 +1,25 @@
 using UnityEngine;
 using System.Collections;
 
+[System.Serializable]
+public enum BoxColor
+{
+    Red,
+    Yellow,
+    Blue,
+    Green,
+    Purple,
+    Orange,
+    White,
+    Black
+}
+
 public class PushableObject : MonoBehaviour
 {
+    [Header("Kutu Özellikleri")]
+    [Tooltip("Bu kutunun rengi - butonlarla etkileşimde kullanılır")]
+    public BoxColor boxColor = BoxColor.Red;
+    
     [Header("İtme Ayarları")]
     [SerializeField] private float pushForce = 5f;
 
@@ -128,5 +145,11 @@ public class PushableObject : MonoBehaviour
         {
             SoundManager.Instance.Play("ObjectDrop");
         }
+    }
+
+    // Kutunun rengini almak için
+    public BoxColor GetBoxColor()
+    {
+        return boxColor;
     }
 } 

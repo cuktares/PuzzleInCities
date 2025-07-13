@@ -139,15 +139,11 @@ public class CinemachineStyleCamera : MonoBehaviour
         return desiredCameraPosition;
     }
     
-    // Yeni kamera pozisyonu için SADECE X offset ayarlama
+    // Yeni kamera pozisyonu için tüm eksenlerde offset ayarlama
     public void UpdateCameraPosition(Vector3 newOffset, float transitionTime)
     {
-        // X eksenindeki değeri al, Y ve Z eksenindeki değerleri koru
-        Vector3 targetOffset = new Vector3(
-            newOffset.x,
-            defaultOffset.y,
-            defaultOffset.z
-        );
+        // Tüm eksenlerdeki değerleri kullan
+        Vector3 targetOffset = newOffset;
         
         if (transitionCoroutine != null)
         {

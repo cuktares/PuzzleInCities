@@ -3601,7 +3601,7 @@
     "m_ObjectId": "accfdf78aa1247bca9ffb4833b08bd96",
     "m_Title": "Border Right",
     "m_Position": {
-        "x": -874.0,
+        "x": -873.9998779296875,
         "y": 274.0
     }
 }
@@ -3923,8 +3923,8 @@
     "m_ObjectId": "c0d3c4a9187c45dfa511719466c5859c",
     "m_Title": "BorderDown",
     "m_Position": {
-        "x": -889.0,
-        "y": 1100.0
+        "x": -888.9998779296875,
+        "y": 1099.9998779296875
     }
 }
 
@@ -4337,7 +4337,7 @@
     "m_Title": "Border Up",
     "m_Position": {
         "x": -891.0,
-        "y": 695.0
+        "y": 694.9999389648438
     }
 }
 
