@@ -3,7 +3,77 @@ guid: a5f897b852b7987418836dd228b5a32c
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: ImphenziaPixPal
+    second: {fileID: 2100000, guid: 8b46500fda53b414b88cbfca88803212, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: ImphenziaPixPal.008
+    second: {fileID: 2100000, guid: 8b46500fda53b414b88cbfca88803212, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: ImphenziaPixPal.010
+    second: {fileID: 2100000, guid: 8b46500fda53b414b88cbfca88803212, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: ImphenziaPixPal.011
+    second: {fileID: 2100000, guid: 8b46500fda53b414b88cbfca88803212, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: ImphenziaPixPal.013
+    second: {fileID: 2100000, guid: 8b46500fda53b414b88cbfca88803212, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: ImphenziaPixPal.014
+    second: {fileID: 2100000, guid: 8b46500fda53b414b88cbfca88803212, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: ImphenziaPixPal.017
+    second: {fileID: 2100000, guid: 8b46500fda53b414b88cbfca88803212, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: ImphenziaPixPal.019
+    second: {fileID: 2100000, guid: 8b46500fda53b414b88cbfca88803212, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: ImphenziaPixPal.021
+    second: {fileID: 2100000, guid: 8b46500fda53b414b88cbfca88803212, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: ImphenziaPixPal.023
+    second: {fileID: 2100000, guid: 8b46500fda53b414b88cbfca88803212, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: ImphenziaPixPal.026
+    second: {fileID: 2100000, guid: 8b46500fda53b414b88cbfca88803212, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: ImphenziaPixPal.027
+    second: {fileID: 2100000, guid: 8b46500fda53b414b88cbfca88803212, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: ImphenziaPixPal.028
+    second: {fileID: 2100000, guid: 8b46500fda53b414b88cbfca88803212, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: ImphenziaPixPal.029
+    second: {fileID: 2100000, guid: 8b46500fda53b414b88cbfca88803212, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0

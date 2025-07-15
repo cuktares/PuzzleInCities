@@ -3,7 +3,12 @@ guid: 632537f2359c0ee41b90d03a73d064c3
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: ImphenziaPixPal.022
+    second: {fileID: 2100000, guid: 8b46500fda53b414b88cbfca88803212, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0
