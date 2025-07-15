@@ -28,6 +28,9 @@ namespace StarterAssets
         public float rotationSpeed = 2f;
         public bool resetRotationOnRelease = true;
         
+        // Activate ayarları
+        public bool resetActivateOnRelease = false;
+        
         [HideInInspector]
         public Vector3 originalPosition;
         [HideInInspector]
@@ -42,7 +45,6 @@ namespace StarterAssets
         public List<ModernButtonAction> actions = new List<ModernButtonAction>();
         public float pressDepth = 0.1f;
         public float pressSpeed = 5f;
-        public bool requiresPlayer = false; // Player gerekli mi, yoksa Pushable yeterli mi?
         
         [Header("Renk Filtresi")]
         [Tooltip("Bu buton hangi renkteki kutularla etkileşime girebilir (boş bırakılırsa tüm renkler kabul edilir)")]
@@ -97,37 +99,27 @@ namespace StarterAssets
                 
             bool canPress = false;
             
-            if (requiresPlayer)
+            // Sadece pushable objelerle etkileşim kur (player ile etkileşim yok)
+            if (other.CompareTag("Pushable"))
             {
-                canPress = other.CompareTag("Player");
-            }
-            else
-            {
-                if (other.CompareTag("Player"))
+                // Pushable obje için renk kontrolü
+                PushableObject pushableObj = other.GetComponent<PushableObject>();
+                if (pushableObj != null)
                 {
-                    canPress = true;
-                }
-                else if (other.CompareTag("Pushable"))
-                {
-                    // Pushable obje için renk kontrolü
-                    PushableObject pushableObj = other.GetComponent<PushableObject>();
-                    if (pushableObj != null)
+                    // Eğer acceptedBoxColors listesi boşsa tüm renkler kabul edilir
+                    if (acceptedBoxColors.Count == 0)
                     {
-                        // Eğer acceptedBoxColors listesi boşsa tüm renkler kabul edilir
-                        if (acceptedBoxColors.Count == 0)
+                        canPress = true;
+                    }
+                    else
+                    {
+                        // Kutunun rengi listede var mı kontrol et
+                        BoxColor objColor = pushableObj.GetBoxColor();
+                        canPress = acceptedBoxColors.Contains(objColor);
+                        
+                        if (!canPress)
                         {
-                            canPress = true;
-                        }
-                        else
-                        {
-                            // Kutunun rengi listede var mı kontrol et
-                            BoxColor objColor = pushableObj.GetBoxColor();
-                            canPress = acceptedBoxColors.Contains(objColor);
-                            
-                            if (!canPress)
-                            {
-                                Debug.Log($"[{gameObject.name}] {objColor} rengindeki kutu bu butonla etkileşime giremez. Kabul edilen renkler: {string.Join(", ", acceptedBoxColors)}");
-                            }
+                            Debug.Log($"[{gameObject.name}] {objColor} rengindeki kutu bu butonla etkileşime giremez. Kabul edilen renkler: {string.Join(", ", acceptedBoxColors)}");
                         }
                     }
                 }
@@ -161,23 +153,13 @@ namespace StarterAssets
             
             bool canRelease = false;
             
-            if (requiresPlayer)
+            // Sadece pushable objelerle etkileşim kur (player ile etkileşim yok)
+            if (other.CompareTag("Pushable"))
             {
-                canRelease = other.CompareTag("Player");
-            }
-            else
-            {
-                if (other.CompareTag("Player"))
+                // Pushable obje için renk kontrolü (sadece butonun üzerindeki objeler için)
+                if (objectsOnButton.Contains(other.gameObject))
                 {
-                    canRelease = true;
-                }
-                else if (other.CompareTag("Pushable"))
-                {
-                    // Pushable obje için renk kontrolü (sadece butonun üzerindeki objeler için)
-                    if (objectsOnButton.Contains(other.gameObject))
-                    {
-                        canRelease = true; // Eğer obje butonun üzerindeyse, rengi ne olursa olsun çıkabilir
-                    }
+                    canRelease = true; // Eğer obje butonun üzerindeyse, rengi ne olursa olsun çıkabilir
                 }
             }
             
@@ -297,7 +279,11 @@ namespace StarterAssets
                     case ModernButtonAction.ActionType.Activate:
                         if (isPressing)
                         {
-                            action.targetObject.SetActive(!action.targetObject.activeSelf);
+                            action.targetObject.SetActive(true);
+                        }
+                        else if (action.resetActivateOnRelease)
+                        {
+                            action.targetObject.SetActive(false);
                         }
                         break;
                     case ModernButtonAction.ActionType.Rotation:
