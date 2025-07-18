@@ -11,9 +11,6 @@ namespace StarterAssets
         public string nextLevelName = "";
         [Tooltip("Trigger'a temas etmek için gerekli süre")]
         public float requiredContactTime = 0.5f;
-        [Tooltip("Level geçişinde fade efekti kullanılsın mı?")]
-        public bool useFadeEffect = true;
-        
         [Header("Görsel Efektler")]
         public GameObject completionEffect;
         public AudioClip completionSound;
@@ -27,7 +24,7 @@ namespace StarterAssets
         private float contactTimer = 0f;
         private bool isTriggered = false;
         private AudioSource audioSource;
-
+    
         private void Start()
         {
             // AudioSource ekle
@@ -186,46 +183,12 @@ namespace StarterAssets
 
         private void LoadLevel(string levelName)
         {
-            if (useFadeEffect)
-            {
-                // Fade controller arayalım
-                var fadeController = FindObjectOfType<FadeController>();
-                if (fadeController != null)
-                {
-                    // Fade ile yükle (bu scripti remake'den alacağız)
-                    fadeController.gameObject.SetActive(true);
-                    // fadeController.FadeOutAndLoadLevel(levelName);
-                }
-                else
-                {
-                    SceneManager.LoadScene(levelName);
-                }
-            }
-            else
-            {
-                SceneManager.LoadScene(levelName);
-            }
+            SceneManager.LoadScene(levelName);
         }
 
         private void LoadLevel(int sceneIndex)
         {
-            if (useFadeEffect)
-            {
-                var fadeController = FindObjectOfType<FadeController>();
-                if (fadeController != null)
-                {
-                    fadeController.gameObject.SetActive(true);
-                    // fadeController.FadeOutAndLoadNextLevel();
-                }
-                else
-                {
-                    SceneManager.LoadScene(sceneIndex);
-                }
-            }
-            else
-            {
-                SceneManager.LoadScene(sceneIndex);
-            }
+            SceneManager.LoadScene(sceneIndex);
         }
 
         private void OnGameCompleted()
