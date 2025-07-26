@@ -127,11 +127,51 @@ namespace StarterAssets
                 }
             }
             
-            // Level geçişini başlat
-            StartCoroutine(LoadNextLevel());
+            // Level completion UI'ını göster
+            ShowLevelCompletionUI();
         }
 
-        private IEnumerator LoadNextLevel()
+        private void ShowLevelCompletionUI()
+        {
+            // LevelCompletionUI'ı bul
+            LevelCompletionUI completionUI = FindObjectOfType<LevelCompletionUI>();
+            
+            if (completionUI != null)
+            {
+                // Sonraki level bilgilerini belirle
+                if (!string.IsNullOrEmpty(nextLevelName))
+                {
+                    completionUI.ShowCompletionUI(nextLevelName);
+                }
+                else
+                {
+                    int currentSceneIndex = SceneManager.GetActiveScene().buildIndex;
+                    int nextSceneIndex = currentSceneIndex + 1;
+                    
+                    if (nextSceneIndex < SceneManager.sceneCountInBuildSettings)
+                    {
+                        completionUI.ShowCompletionUI("", nextSceneIndex);
+                    }
+                    else
+                    {
+                        // Son level - next level yok
+                        completionUI.ShowCompletionUI("", -1);
+                    }
+                }
+            }
+            else
+            {
+                if (debugMode)
+                {
+                    Debug.LogError("LevelCompletionUI bulunamadı! Eski sisteme geri dönülüyor.");
+                }
+                
+                // Fallback: Eski sistemi kullan
+                StartCoroutine(LoadNextLevelFallback());
+            }
+        }
+
+        private IEnumerator LoadNextLevelFallback()
         {
             // Ses çalmasını bekle
             if (completionSound != null)
@@ -146,36 +186,19 @@ namespace StarterAssets
             // Sonraki level'i belirle
             if (!string.IsNullOrEmpty(nextLevelName))
             {
-                // İsimle yükle
-                if (debugMode)
-                {
-                    Debug.Log($"Loading level by name: {nextLevelName}");
-                }
-                
-                LoadLevel(nextLevelName);
+                SceneManager.LoadScene(nextLevelName);
             }
             else
             {
-                // Index ile yükle
                 int currentSceneIndex = SceneManager.GetActiveScene().buildIndex;
                 int nextSceneIndex = currentSceneIndex + 1;
                 
                 if (nextSceneIndex < SceneManager.sceneCountInBuildSettings)
                 {
-                    if (debugMode)
-                    {
-                        Debug.Log($"Loading next level by index: {nextSceneIndex}");
-                    }
-                    
-                    LoadLevel(nextSceneIndex);
+                    SceneManager.LoadScene(nextSceneIndex);
                 }
                 else
                 {
-                    if (debugMode)
-                    {
-                        Debug.Log("Bu son level! Oyun tamamlandı.");
-                    }
-                    
                     OnGameCompleted();
                 }
             }

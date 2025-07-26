@@ -30,6 +30,30 @@ public class MusicManager : MonoBehaviour
         PlayerPrefs.SetFloat("MusicVolume", volume);
         PlayerPrefs.Save();
     }
+    
+    public void PlayMusic(AudioClip clip)
+    {
+        if (clip != null)
+        {
+            musicSource.clip = clip;
+            musicSource.Play();
+        }
+    }
+    
+    public void StopMusic()
+    {
+        musicSource.Stop();
+    }
+    
+    public void PauseMusic()
+    {
+        musicSource.Pause();
+    }
+    
+    public void ResumeMusic()
+    {
+        musicSource.UnPause();
+    }
 
     public void ToggleMusic()
     {
