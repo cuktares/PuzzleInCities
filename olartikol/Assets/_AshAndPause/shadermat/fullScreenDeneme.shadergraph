@@ -2957,7 +2957,7 @@
     "m_ObjectId": "8301d6a09d3d4727b3c7046a6399304b",
     "m_Title": "Border Left",
     "m_Position": {
-        "x": -868.0,
+        "x": -868.0001220703125,
         "y": -99.0
     }
 }
@@ -3601,7 +3601,7 @@
     "m_ObjectId": "accfdf78aa1247bca9ffb4833b08bd96",
     "m_Title": "Border Right",
     "m_Position": {
-        "x": -873.9998779296875,
+        "x": -874.0,
         "y": 274.0
     }
 }
@@ -3923,8 +3923,8 @@
     "m_ObjectId": "c0d3c4a9187c45dfa511719466c5859c",
     "m_Title": "BorderDown",
     "m_Position": {
-        "x": -888.9998779296875,
-        "y": 1099.9998779296875
+        "x": -889.0001220703125,
+        "y": 1100.0
     }
 }
 
@@ -4336,7 +4336,7 @@
     "m_ObjectId": "de23af9b506749e5b3f5336ac437c87e",
     "m_Title": "Border Up",
     "m_Position": {
-        "x": -891.0,
+        "x": -891.0001220703125,
         "y": 694.9999389648438
     }
 }

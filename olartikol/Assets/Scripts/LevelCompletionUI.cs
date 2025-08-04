@@ -75,6 +75,13 @@ public class LevelCompletionUI : MonoBehaviour
             nextLevelButton.gameObject.SetActive(hasNextLevel);
         }
         
+        // Pause Manager'a level tamamlandığını bildir
+        PauseManager pauseManager = FindObjectOfType<PauseManager>();
+        if (pauseManager != null)
+        {
+            pauseManager.SetLevelCompleted(true);
+        }
+        
         // Animasyonu başlat
         StartCompletionAnimation();
     }
@@ -156,6 +163,21 @@ public class LevelCompletionUI : MonoBehaviour
         if (isAnimating) return;
         
         Time.timeScale = 1f;
+        
+        // Pause Manager'da level completion durumunu sıfırla
+        PauseManager pauseManager = FindObjectOfType<PauseManager>();
+        if (pauseManager != null)
+        {
+            pauseManager.SetLevelCompleted(false);
+        }
+        
+        // Klon sistemini sıfırla
+        var playerController = FindObjectOfType<StarterAssets.EnhancedThirdPersonController>();
+        if (playerController != null)
+        {
+            playerController.ResetCloneSystem();
+        }
+        
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
     

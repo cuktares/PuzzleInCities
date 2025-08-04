@@ -5,14 +5,35 @@ using UnityEngine;
 public class PositionTracker : MonoBehaviour
 {
     private List<(Vector3 position, Quaternion rotation)> recordedPositions = new List<(Vector3, Quaternion)>();
-    private const float RECORD_INTERVAL = 0.1f; // Mobile için daha az sık kayıt (0.05f -> 0.1f)
-    private const int MAX_POSITIONS = 100; // Mobile için daha az pozisyon (200 -> 100)
+    private float recordInterval = 0.05f; // Dinamik olarak ayarlanacak
+    private int maxPositions = 150; // Dinamik olarak ayarlanacak
     private bool isRecording = false;
     private Coroutine recordingCoroutine;
 
     private void Start()
     {
+        // Platform bazlı optimizasyon ayarları
+        SetPlatformOptimizations();
         StartRecording();
+    }
+    
+    private void SetPlatformOptimizations()
+    {
+        // Mobil platformlar için ayarlama
+        if (Application.isMobilePlatform)
+        {
+            // Mobilde biraz daha düşük ama yine de smooth olacak ayarlar
+            recordInterval = 0.06f;
+            maxPositions = 120;
+        }
+        else
+        {
+            // PC/Konsol için optimal ayarlar
+            recordInterval = 0.04f;
+            maxPositions = 180;
+        }
+        
+        Debug.Log($"PositionTracker ayarları - Interval: {recordInterval}, Max Positions: {maxPositions}");
     }
 
     public void StartRecording()
@@ -46,7 +67,7 @@ public class PositionTracker : MonoBehaviour
         while (isRecording)
         {
             RecordPosition();
-            yield return new WaitForSeconds(RECORD_INTERVAL);
+            yield return new WaitForSeconds(recordInterval);
         }
     }
 
@@ -55,12 +76,14 @@ public class PositionTracker : MonoBehaviour
         if (!isRecording) return;
 
         // Sadece pozisyon değişmişse kaydet (optimize edilmiş)
+        float minDistanceThreshold = Application.isMobilePlatform ? 0.05f : 0.03f;
+        
         if (recordedPositions.Count == 0 || 
-            Vector3.Distance(transform.position, recordedPositions[recordedPositions.Count - 1].position) > 0.1f)
+            Vector3.Distance(transform.position, recordedPositions[recordedPositions.Count - 1].position) > minDistanceThreshold)
         {
             recordedPositions.Add((transform.position, transform.rotation));
             
-            if (recordedPositions.Count > MAX_POSITIONS)
+            if (recordedPositions.Count > maxPositions)
             {
                 recordedPositions.RemoveAt(0);
             }

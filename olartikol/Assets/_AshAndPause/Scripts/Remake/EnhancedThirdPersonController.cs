@@ -54,8 +54,12 @@ namespace StarterAssets
         public float cloneLifetime = 5f;
         [Tooltip("Geri sarma hızı")]
         public float rewindSpeed = 10f;
+        [Tooltip("Mobilde otomatik hız optimizasyonu")]
+        public bool optimizeForMobile = true;
         [Tooltip("Geri sarma penceresi")]
         public float rewindWindow = 3f;
+        [Tooltip("Klon kullanımı arasındaki bekleme süresi")]
+        public float cloneCooldownTime = 2f;
 
         [Header("Nesne Tutma Sistemi")]
         [Tooltip("Tutma noktası")]
@@ -106,6 +110,8 @@ namespace StarterAssets
         private bool isRewinding = false;
         private bool hasActiveClone = false;
         private float cloneCreationTime;
+        private float lastCloneUsageTime = -10f; // Başlangıçta kullanılabilir olması için
+        private bool canUseClone = true;
 
         // Nesne tutma değişkenleri
         private PushableObject heldObject;
@@ -172,6 +178,13 @@ namespace StarterAssets
             _hasAnimator = TryGetComponent(out _animator);
 
             if (isRewinding) return;
+
+            // Klon cooldown kontrolü
+            if (!canUseClone && Time.time - lastCloneUsageTime >= cloneCooldownTime)
+            {
+                canUseClone = true;
+                Debug.Log("Klon sistemi tekrar kullanılabilir!");
+            }
 
             // Klon süresini kontrol et
             if (hasActiveClone && Time.time - cloneCreationTime > cloneLifetime)
@@ -350,7 +363,11 @@ namespace StarterAssets
         {
             if (_input.createClone)
             {
-                if (!hasActiveClone)
+                if (!canUseClone)
+                {
+                    Debug.Log("Klon sistemi cooldown'da! Bekleme süresi: " + (cloneCooldownTime - (Time.time - lastCloneUsageTime)).ToString("F1") + " saniye");
+                }
+                else if (!hasActiveClone)
                 {
                     CreateCloneMarker();
                 }
@@ -431,6 +448,10 @@ namespace StarterAssets
             hasActiveClone = true;
             cloneCreationTime = Time.time;
 
+            // Cooldown başlat
+            lastCloneUsageTime = Time.time;
+            canUseClone = false;
+
             // Pozisyon takibini sıfırla ve yeniden başlat
             _positionTracker.ResetPositions();
             _positionTracker.StartRecording();
@@ -439,6 +460,8 @@ namespace StarterAssets
             {
                 _audioSource.PlayOneShot(CloneCreateSound);
             }
+            
+            Debug.Log("Klon oluşturuldu! " + cloneCooldownTime + " saniye cooldown başladı.");
         }
 
         private void StartRewind()
@@ -465,24 +488,44 @@ namespace StarterAssets
             var positions = _positionTracker.GetRecordedPositions();
             positions.Reverse(); // En son pozisyondan başlayarak geri git
 
+            // Platform bazlı optimizasyon
+            float effectiveRewindSpeed = rewindSpeed;
+            if (optimizeForMobile && Application.isMobilePlatform)
+            {
+                effectiveRewindSpeed *= 1.3f; // Mobilde %30 daha hızlı
+            }
+
             foreach (var posData in positions)
             {
-                float startTime = Time.time;
                 Vector3 startPos = transform.position;
                 Quaternion startRot = transform.rotation;
                 Vector3 targetPos = posData.position;
                 Quaternion targetRot = posData.rotation;
 
                 float journeyLength = Vector3.Distance(startPos, targetPos);
-                float distanceCovered = 0;
-
-                while (distanceCovered < journeyLength)
+                
+                // Çok küçük mesafeler için skip et (performans)
+                if (journeyLength < 0.02f)
                 {
-                    float fractionOfJourney = distanceCovered / journeyLength;
-                    transform.position = Vector3.Lerp(startPos, targetPos, fractionOfJourney);
-                    transform.rotation = Quaternion.Lerp(startRot, targetRot, fractionOfJourney);
+                    transform.position = targetPos;
+                    transform.rotation = targetRot;
+                    continue;
+                }
 
-                    distanceCovered = (Time.time - startTime) * rewindSpeed;
+                float journeyTime = journeyLength / effectiveRewindSpeed;
+                float elapsedTime = 0f;
+
+                while (elapsedTime < journeyTime)
+                {
+                    float t = elapsedTime / journeyTime;
+                    
+                    // Smooth interpolation
+                    float smoothT = Mathf.SmoothStep(0f, 1f, t);
+                    
+                    transform.position = Vector3.Lerp(startPos, targetPos, smoothT);
+                    transform.rotation = Quaternion.Slerp(startRot, targetRot, smoothT);
+
+                    elapsedTime += Time.deltaTime;
                     yield return null;
                 }
 
@@ -500,9 +543,15 @@ namespace StarterAssets
             _controller.enabled = true;
             _verticalVelocity = 0f;
             
+            // Cooldown başlat
+            lastCloneUsageTime = Time.time;
+            canUseClone = false;
+            
             DestroyClone();
             _positionTracker.ResetPositions();
             _positionTracker.StartRecording();
+            
+            Debug.Log("Rewind tamamlandı! " + cloneCooldownTime + " saniye cooldown başladı.");
         }
 
         private void DestroyClone()
@@ -519,6 +568,22 @@ namespace StarterAssets
             hasActiveClone = false;
             
             _positionTracker.ResetPositions();
+        }
+
+        // Level restart veya gerekli durumlarda klon sistemini sıfırlamak için
+        public void ResetCloneSystem()
+        {
+            DestroyClone();
+            isRewinding = false;
+            canUseClone = true;
+            lastCloneUsageTime = -10f;
+            
+            if (_controller != null)
+                _controller.enabled = true;
+                
+            _verticalVelocity = 0f;
+            
+            Debug.Log("Klon sistemi tamamen sıfırlandı!");
         }
 
 

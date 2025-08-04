@@ -13,6 +13,16 @@ public class VehiclePatrol : MonoBehaviour
     [Tooltip("Dönüş noktalarında ne kadar yumuşak durur")]
     public float smoothTurnTime = 0.5f;
     
+    [Tooltip("Hedefe yaklaşırken yavaşlama mesafesi")]
+    public float slowDownDistance = 1f;
+    
+    [Header("Mobil Optimizasyon")]
+    [Tooltip("Hedef mesafe toleransı (mobil için daha büyük değer)")]
+    public float targetTolerance = 0.3f;
+    
+    [Tooltip("Maksimum hareket mesafesi per frame (titreme önleme)")]
+    public float maxMoveDistancePerFrame = 0.5f;
+    
     [Header("Debug")]
     public bool showDebugLines = true;
     
@@ -23,8 +33,12 @@ public class VehiclePatrol : MonoBehaviour
     private Vector3 pointB;
     private bool movingToB = true;
     private float journeyLength;
-    private float journeyTime = 0f;
     private bool isMoving = true;
+    
+    // Yumuşak hareket için
+    private float currentSpeed = 0f;
+    private float turnTimer = 0f;
+    private bool isInTurnPhase = false;
     
     void Start()
     {
@@ -57,7 +71,14 @@ public class VehiclePatrol : MonoBehaviour
     {
         if (!isMoving) return;
         
-        MoveVehicle();
+        if (isInTurnPhase)
+        {
+            HandleTurnPhase();
+        }
+        else
+        {
+            MoveVehicle();
+        }
     }
     
     void MoveVehicle()
@@ -65,18 +86,41 @@ public class VehiclePatrol : MonoBehaviour
         // Sadece Z ekseninde mesafeyi kontrol et
         float distanceToTarget = Mathf.Abs(transform.position.z - targetPosition.z);
         
-        // Hedefe çok yaklaştıysak yön değiştir
-        if (distanceToTarget < 0.1f)
+        // Hedefe çok yaklaştıysak dönüş fazına geç
+        if (distanceToTarget <= targetTolerance)
         {
-            SwitchDirection();
+            StartTurnPhase();
+            return;
         }
         
-        // Sadece Z ekseninde hareket et
+        // Hedef yönünü hesapla
         float direction = (targetPosition.z > transform.position.z) ? 1f : -1f;
+        
+        // Hedefe yaklaşırken yavaşla
+        float speedMultiplier = 1f;
+        if (distanceToTarget < slowDownDistance)
+        {
+            speedMultiplier = Mathf.Clamp01(distanceToTarget / slowDownDistance);
+            speedMultiplier = Mathf.Max(speedMultiplier, 0.2f); // Minimum hız
+        }
+        
+        // Yumuşak hız geçişi
+        float targetSpeed = moveSpeed * speedMultiplier;
+        currentSpeed = Mathf.Lerp(currentSpeed, targetSpeed, Time.deltaTime * 5f);
+        
+        // Hareket mesafesini hesapla ve sınırla
+        float moveDistance = currentSpeed * Time.deltaTime;
+        moveDistance = Mathf.Min(moveDistance, maxMoveDistancePerFrame);
+        
+        // Hedef aşmayı önle
+        if (moveDistance > distanceToTarget)
+        {
+            moveDistance = distanceToTarget;
+        }
         
         // Yeni pozisyon hesapla - sadece Z ekseni değişecek
         Vector3 newPosition = transform.position;
-        newPosition.z += direction * moveSpeed * Time.deltaTime;
+        newPosition.z += direction * moveDistance;
         
         // X ve Y eksenlerini sabit tut
         newPosition.x = startPosition.x;
@@ -84,24 +128,43 @@ public class VehiclePatrol : MonoBehaviour
         
         // Pozisyonu uygula
         transform.position = newPosition;
-        
-        // Rotation hiç değişmez - araç hiç dönmez
     }
     
-    void SwitchDirection()
+    void StartTurnPhase()
     {
+        isInTurnPhase = true;
+        turnTimer = 0f;
+        currentSpeed = 0f;
+        
         // Yönü değiştir
         movingToB = !movingToB;
         targetPosition = movingToB ? pointB : pointA;
         
         string direction = movingToB ? "ileriye" : "geriye";
-        Debug.Log($"[{gameObject.name}] Yön değiştirildi - {direction} gidiyor. Hedef Z: {targetPosition.z:F1}");
+        Debug.Log($"[{gameObject.name}] Dönüş fazı başladı - {direction} gidecek. Hedef Z: {targetPosition.z:F1}");
+    }
+    
+    void HandleTurnPhase()
+    {
+        turnTimer += Time.deltaTime;
+        
+        // Dönüş süresi tamamlandıysa normal harekete dön
+        if (turnTimer >= smoothTurnTime)
+        {
+            isInTurnPhase = false;
+            turnTimer = 0f;
+            
+            string direction = movingToB ? "ileriye" : "geriye";
+            Debug.Log($"[{gameObject.name}] Dönüş tamamlandı - {direction} hareket başlıyor");
+        }
     }
     
     // Hareket durdurma/başlatma metodları
     public void StopPatrol()
     {
         isMoving = false;
+        currentSpeed = 0f;
+        isInTurnPhase = false;
         Debug.Log($"[{gameObject.name}] Patrol durduruldu");
     }
     
@@ -116,6 +179,9 @@ public class VehiclePatrol : MonoBehaviour
         transform.position = startPosition;
         targetPosition = pointB;
         movingToB = true;
+        currentSpeed = 0f;
+        isInTurnPhase = false;
+        turnTimer = 0f;
         Debug.Log($"[{gameObject.name}] Pozisyon sıfırlandı - Z ekseni hareket başlatıldı");
     }
     
@@ -141,9 +207,28 @@ public class VehiclePatrol : MonoBehaviour
             Gizmos.color = Color.yellow;
             Gizmos.DrawWireSphere(targetPosition, 0.4f);
             
+            // Hedef tolerans alanı
+            Gizmos.color = new Color(1f, 1f, 0f, 0.3f);
+            Gizmos.DrawSphere(targetPosition, targetTolerance);
+            
+            // Yavaşlama alanı
+            Gizmos.color = new Color(1f, 0.5f, 0f, 0.2f);
+            Vector3 slowDownCenter = targetPosition;
+            Gizmos.DrawSphere(slowDownCenter, slowDownDistance);
+            
             // Hareket yönü
-            Gizmos.color = Color.green;
-            Gizmos.DrawRay(transform.position, (targetPosition - transform.position).normalized * 2f);
+            if (!isInTurnPhase)
+            {
+                Gizmos.color = Color.green;
+                Gizmos.DrawRay(transform.position, (targetPosition - transform.position).normalized * 2f);
+            }
+            
+            // Dönüş fazı göstergesi
+            if (isInTurnPhase)
+            {
+                Gizmos.color = Color.magenta;
+                Gizmos.DrawWireSphere(transform.position + Vector3.up * 2f, 0.5f);
+            }
         }
         else
         {
@@ -179,7 +264,8 @@ public class VehiclePatrol : MonoBehaviour
         {
             // Patrol bilgilerini konsola yazdır
             string direction = movingToB ? "ileriye" : "geriye";
-            Debug.Log($"[{gameObject.name}] Patrol Bilgileri - Mesafe: {patrolDistance:F1}m, Hız: {moveSpeed:F1}, Yön: {direction}");
+            string phase = isInTurnPhase ? "dönüş fazında" : "hareket halinde";
+            Debug.Log($"[{gameObject.name}] Patrol Bilgileri - Mesafe: {patrolDistance:F1}m, Hız: {currentSpeed:F1}, Yön: {direction}, Durum: {phase}");
         }
     }
 } 

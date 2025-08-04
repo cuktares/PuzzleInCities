@@ -8,6 +8,14 @@ public class SceneRestartTrigger : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             Debug.Log("Karakter trigger'a değdi, sahne yeniden yükleniyor...");
+            
+            // Klon sistemini sıfırla
+            var playerController = other.GetComponent<StarterAssets.EnhancedThirdPersonController>();
+            if (playerController != null)
+            {
+                playerController.ResetCloneSystem();
+            }
+            
             SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         }
     }

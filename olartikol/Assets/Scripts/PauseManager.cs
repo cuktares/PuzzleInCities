@@ -20,6 +20,7 @@ public class PauseManager : MonoBehaviour
     
     private bool isPaused = false;
     private bool wasAudioPaused = false;
+    private bool isLevelCompleted = false;
 
     private void Start()
     {
@@ -70,6 +71,9 @@ public class PauseManager : MonoBehaviour
     
     public void PauseGame()
     {
+        // Level tamamlandıysa pause yapma
+        if (isLevelCompleted) return;
+        
         isPaused = true;
         Time.timeScale = 0f;
         pauseMenuPanel.SetActive(true);
@@ -115,6 +119,17 @@ public class PauseManager : MonoBehaviour
     public void RestartLevel()
     {
         Time.timeScale = 1f;
+        
+        // Level completion durumunu sıfırla
+        SetLevelCompleted(false);
+        
+        // Klon sistemini sıfırla
+        var playerController = FindObjectOfType<StarterAssets.EnhancedThirdPersonController>();
+        if (playerController != null)
+        {
+            playerController.ResetCloneSystem();
+        }
+        
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
     
@@ -142,9 +157,33 @@ public class PauseManager : MonoBehaviour
         }
     }
     
+    // Level tamamlandığında çağırılacak metod
+    public void SetLevelCompleted(bool completed)
+    {
+        isLevelCompleted = completed;
+        
+        // Level tamamlandıysa pause butonunu devre dışı bırak
+        if (pauseButton != null)
+        {
+            pauseButton.interactable = !completed;
+        }
+        
+        // Eğer level tamamlandıysa ve pause menüsü açıksa kapat
+        if (completed && isPaused)
+        {
+            ResumeGame();
+        }
+    }
+    
     // Diğer scriptler için pause durumunu kontrol etme
     public bool IsPaused()
     {
         return isPaused;
+    }
+    
+    // Level completion durumunu kontrol etme
+    public bool IsLevelCompleted()
+    {
+        return isLevelCompleted;
     }
 } 
